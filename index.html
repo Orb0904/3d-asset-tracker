@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3D Production Board</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">3D PRODUCTION</div>
+      <h1>Asset Tracker</h1>
+    </div>
+    <div class="top-actions">
+      <button id="addAsset" class="btn primary">+ Add Asset</button>
+      <button id="exportBtn" class="btn">Export</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="project-head">
+      <div>
+        <div class="project-label">PROJECT</div>
+        <input id="projectName" class="project-name" value="ThetaPixalator" />
+        <div class="muted">BO → High → Low → UV → Bake → Texture → Export</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span>Total</span><strong id="statTotal">0</strong></div>
+        <div class="stat"><span>Doing</span><strong id="statDoing">0</strong></div>
+        <div class="stat"><span>Waiting FB</span><strong id="statWaiting">0</strong></div>
+        <div class="stat"><span>Done</span><strong id="statDone">0</strong></div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search asset..." />
+      <select id="filter">
+        <option value="all">All status</option>
+        <option value="doing">Doing</option>
+        <option value="waiting">Waiting FB</option>
+        <option value="done">Done</option>
+      </select>
+      <button id="importBtn" class="btn small">Import JSON</button>
+      <input id="importFile" type="file" accept=".json" hidden />
+    </section>
+
+    <section id="assetList" class="asset-list"></section>
+  </main>
+
+  <div id="imageModal" class="modal" aria-hidden="true">
+    <button id="closeModal" class="modal-close">×</button>
+    <img id="modalImg" alt="Preview" />
+  </div>
+
+  <template id="assetTemplate">
+    <article class="asset-card">
+      <div class="asset-main">
+        <div class="thumb-wrap">
+          <button class="thumb-btn" type="button">
+            <img class="thumb" alt="Sample" />
+            <span class="thumb-placeholder">Add sample</span>
+          </button>
+          <input class="image-input" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+        </div>
+
+        <div class="asset-meta">
+          <input class="asset-name" value="New Asset" />
+          <textarea class="asset-note" placeholder="Feedback / note / revision..."></textarea>
+        </div>
+
+        <div class="asset-progress">
+          <div class="progress-label">
+            <span>Progress</span>
+            <strong class="progress-text">0%</strong>
+          </div>
+          <div class="progress"><span></span></div>
+          <button class="btn small remove">Delete</button>
+        </div>
+      </div>
+
+      <div class="stage-row"></div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
