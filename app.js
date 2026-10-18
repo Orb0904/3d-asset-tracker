@@ -85,6 +85,19 @@ function renderAsset(asset){
     r.readAsDataURL(f);
   });
 
+  if(asset.image){
+    const removeImageBtn=document.createElement("button");
+    removeImageBtn.type="button";
+    removeImageBtn.className="remove-image";
+    removeImageBtn.textContent="Remove image";
+    removeImageBtn.addEventListener("click",e=>{
+      e.stopPropagation();
+      asset.image="";
+      save();
+    });
+    node.querySelector(".thumb-wrap").appendChild(removeImageBtn);
+  }
+
   const row=node.querySelector(".stage-row");
   STAGES.forEach(stage=>{
     const box=document.createElement("div");

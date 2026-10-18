@@ -63,6 +63,11 @@ h1{margin:3px 0 0;font-size:23px}
 }
 .thumb{width:100%;height:100%;object-fit:cover;display:none}
 .thumb-placeholder{font-size:12px}
+.remove-image{
+  width:100%;margin-top:6px;border:1px solid #58343a;background:#171215;color:#f0a0a8;
+  padding:6px 8px;border-radius:8px;font-size:11px
+}
+.remove-image:hover{border-color:var(--danger)}
 .asset-meta{min-width:0}
 .asset-name{
   width:100%;background:transparent;border:none;color:var(--text);font-size:18px;font-weight:750;
