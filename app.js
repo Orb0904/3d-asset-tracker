@@ -129,7 +129,7 @@ document.getElementById("search").addEventListener("input",render);
 document.getElementById("filter").addEventListener("change",render);
 
 const projectName=document.getElementById("projectName");
-projectName.value=localStorage.getItem(PROJECT_KEY)||"ThetaPixalator";
+projectName.value=localStorage.getItem(PROJECT_KEY)||"Project Name";
 projectName.addEventListener("change",()=>localStorage.setItem(PROJECT_KEY,projectName.value));
 
 document.getElementById("exportBtn").addEventListener("click",()=>{
