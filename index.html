@@ -13,6 +13,7 @@
       <h1>Asset Tracker</h1>
     </div>
     <div class="top-actions">
+      <button id="editWorkflowBtn" class="btn">Edit Workflow</button>
       <button id="addAsset" class="btn primary">+ Add Asset</button>
       <button id="exportBtn" class="btn">Export</button>
     </div>
@@ -23,7 +24,7 @@
       <div>
         <div class="project-label">PROJECT</div>
         <input id="projectName" class="project-name" value="Project Name" />
-        <div class="muted">BO → High → Low → UV → Bake → Texture → Export</div>
+        <div id="workflowSummary" class="muted"></div>
       </div>
 
       <div class="stats">
@@ -49,7 +50,24 @@
     <section id="assetList" class="asset-list"></section>
   </main>
 
-  <div id="imageModal" class="modal" aria-hidden="true">
+
+  <div id="workflowModal" class="modal workflow-modal" aria-hidden="true">
+    <div class="workflow-panel" role="dialog" aria-modal="true" aria-labelledby="workflowTitle">
+      <div class="workflow-head">
+        <div><div class="eyebrow">CUSTOM PIPELINE</div><h2 id="workflowTitle">Edit Workflow</h2></div>
+        <button id="closeWorkflow" class="icon-btn" type="button" aria-label="Đóng">×</button>
+      </div>
+      <p class="workflow-help">Kéo từng bước để đổi vị trí, hoặc dùng nút ↑ ↓. Đổi tên trực tiếp trong ô.</p>
+      <div id="workflowList" class="workflow-list"></div>
+      <div class="workflow-actions">
+        <button id="addStageBtn" class="btn" type="button">+ Add Stage</button>
+        <button id="resetWorkflowBtn" class="btn danger" type="button">Reset Default</button>
+        <button id="saveWorkflowBtn" class="btn primary" type="button">Save Workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imageModal" class="modal image-modal" aria-hidden="true">
     <button id="closeModal" class="modal-close">×</button>
     <img id="modalImg" alt="Preview" />
   </div>
@@ -63,6 +81,7 @@
             <span class="thumb-placeholder">Add sample</span>
           </button>
           <input class="image-input" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+          <button class="remove-image" type="button" hidden>Remove image</button>
         </div>
 
         <div class="asset-meta">

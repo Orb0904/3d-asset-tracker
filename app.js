@@ -1,168 +1,33 @@
-const STORAGE_KEY = "web_3d_asset_tracker_v1";
-const PROJECT_KEY = "web_3d_asset_tracker_project_v1";
-const STAGES = ["BO","High","Low","UV","Bake","Texture","Export"];
-const STATUSES = ["To do","Doing","Waiting FB","Done"];
-
-let assets = loadAssets();
-
-function uid(){
-  return (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()));
-}
-function emptyAsset(){
-  const stages={};
-  STAGES.forEach(s=>stages[s]="To do");
-  return {id:uid(),name:"New Asset",note:"",image:"",stages};
-}
-function loadAssets(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw) return [emptyAsset()];
-    const data=JSON.parse(raw);
-    return Array.isArray(data)?data:[emptyAsset()];
-  }catch{return [emptyAsset()]}
-}
-function save(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(assets));
-  render();
-}
-function statusClass(s){
-  if(s==="Doing") return "doing";
-  if(s==="Waiting FB") return "waiting";
-  if(s==="Done") return "done";
-  return "";
-}
-function pct(a){
-  return Math.round(STAGES.filter(s=>a.stages[s]==="Done").length/STAGES.length*100);
-}
-function currentBucket(a){
-  if(STAGES.every(s=>a.stages[s]==="Done")) return "done";
-  if(STAGES.some(s=>a.stages[s]==="Waiting FB")) return "waiting";
-  if(STAGES.some(s=>a.stages[s]==="Doing")) return "doing";
-  return "todo";
-}
-function render(){
-  const list=document.getElementById("assetList");
-  const q=document.getElementById("search").value.toLowerCase().trim();
-  const filter=document.getElementById("filter").value;
-  list.innerHTML="";
-
-  assets
-    .filter(a=>a.name.toLowerCase().includes(q))
-    .filter(a=>filter==="all" || currentBucket(a)===filter)
-    .forEach(asset=>list.appendChild(renderAsset(asset)));
-
-  document.getElementById("statTotal").textContent=assets.length;
-  document.getElementById("statDoing").textContent=assets.filter(a=>currentBucket(a)==="doing").length;
-  document.getElementById("statWaiting").textContent=assets.filter(a=>currentBucket(a)==="waiting").length;
-  document.getElementById("statDone").textContent=assets.filter(a=>currentBucket(a)==="done").length;
-}
-function renderAsset(asset){
-  const tpl=document.getElementById("assetTemplate");
-  const node=tpl.content.firstElementChild.cloneNode(true);
-
-  const name=node.querySelector(".asset-name");
-  const note=node.querySelector(".asset-note");
-  name.value=asset.name;
-  note.value=asset.note||"";
-
-  name.addEventListener("change",()=>{asset.name=name.value.trim()||"Unnamed Asset";save()});
-  note.addEventListener("change",()=>{asset.note=note.value;save()});
-
-  const img=node.querySelector(".thumb");
-  const ph=node.querySelector(".thumb-placeholder");
-  const btn=node.querySelector(".thumb-btn");
-  const file=node.querySelector(".image-input");
-
-  if(asset.image){
-    img.src=asset.image; img.style.display="block"; ph.style.display="none";
-    img.addEventListener("click",(e)=>{e.stopPropagation();openModal(asset.image)});
-  }
-  btn.addEventListener("click",()=>file.click());
-  file.addEventListener("change",e=>{
-    const f=e.target.files[0]; if(!f) return;
-    const r=new FileReader();
-    r.onload=()=>{asset.image=r.result;save()};
-    r.readAsDataURL(f);
-  });
-
-  if(asset.image){
-    const removeImageBtn=document.createElement("button");
-    removeImageBtn.type="button";
-    removeImageBtn.className="remove-image";
-    removeImageBtn.textContent="Remove image";
-    removeImageBtn.addEventListener("click",e=>{
-      e.stopPropagation();
-      asset.image="";
-      save();
-    });
-    node.querySelector(".thumb-wrap").appendChild(removeImageBtn);
-  }
-
-  const row=node.querySelector(".stage-row");
-  STAGES.forEach(stage=>{
-    const box=document.createElement("div");
-    box.className="stage";
-    const label=document.createElement("label"); label.textContent=stage;
-    const sel=document.createElement("select");
-    STATUSES.forEach(s=>{
-      const o=document.createElement("option");o.value=s;o.textContent=s;
-      if(asset.stages[stage]===s)o.selected=true;
-      sel.appendChild(o);
-    });
-    sel.className=statusClass(asset.stages[stage]);
-    sel.addEventListener("change",()=>{asset.stages[stage]=sel.value;save()});
-    box.append(label,sel); row.appendChild(box);
-  });
-
-  const p=pct(asset);
-  node.querySelector(".progress-text").textContent=p+"%";
-  node.querySelector(".progress span").style.width=p+"%";
-
-  node.querySelector(".remove").addEventListener("click",()=>{
-    if(confirm("Delete "+asset.name+"?")){
-      assets=assets.filter(a=>a.id!==asset.id);save();
-    }
-  });
-  return node;
-}
-function openModal(src){
-  const m=document.getElementById("imageModal");
-  document.getElementById("modalImg").src=src;
-  m.classList.add("open");m.setAttribute("aria-hidden","false");
-}
-function closeModal(){
-  const m=document.getElementById("imageModal");
-  m.classList.remove("open");m.setAttribute("aria-hidden","true");
-}
-document.getElementById("closeModal").addEventListener("click",closeModal);
-document.getElementById("imageModal").addEventListener("click",e=>{if(e.target.id==="imageModal")closeModal()});
-
-document.getElementById("addAsset").addEventListener("click",()=>{assets.push(emptyAsset());save()});
-document.getElementById("search").addEventListener("input",render);
-document.getElementById("filter").addEventListener("change",render);
-
-const projectName=document.getElementById("projectName");
-projectName.value=localStorage.getItem(PROJECT_KEY)||"Project Name";
-projectName.addEventListener("change",()=>localStorage.setItem(PROJECT_KEY,projectName.value));
-
-document.getElementById("exportBtn").addEventListener("click",()=>{
-  const payload={project:projectName.value,assets};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download="3d-production-board.json";a.click();
-  URL.revokeObjectURL(url);
-});
-document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
-document.getElementById("importFile").addEventListener("change",async e=>{
-  const f=e.target.files[0];if(!f)return;
-  try{
-    const data=JSON.parse(await f.text());
-    if(data.project) projectName.value=data.project;
-    if(Array.isArray(data.assets)) assets=data.assets;
-    localStorage.setItem(PROJECT_KEY,projectName.value);
-    save();
-  }catch{alert("JSON không hợp lệ")}
-  e.target.value="";
-});
-render();
+const STORAGE_KEY="web_3d_asset_tracker_v1";
+const PROJECT_KEY="web_3d_asset_tracker_project_v1";
+const WORKFLOW_KEY="web_3d_asset_tracker_workflow_v2";
+const DEFAULT_NAMES=["BO","High","Low","UV","Bake","Texture","Export"];
+const STATUSES=["To do","Doing","Waiting FB","Done"];
+const uid=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());
+const defaultWorkflow=()=>DEFAULT_NAMES.map(name=>({id:uid(),name}));
+function loadWorkflow(){try{const d=JSON.parse(localStorage.getItem(WORKFLOW_KEY));if(Array.isArray(d)&&d.length)return d.map(s=>({id:s.id||uid(),name:String(s.name||"Stage")}));}catch{}return defaultWorkflow();}
+let workflow=loadWorkflow();
+function emptyAsset(){const stages={};workflow.forEach(s=>stages[s.id]="To do");return{id:uid(),name:"New Asset",note:"",image:"",stages};}
+function migrateAsset(a){if(!a||typeof a!=="object")return emptyAsset();if(!a.stages||typeof a.stages!=="object")a.stages={};const old={...a.stages};if(Object.keys(old).some(k=>DEFAULT_NAMES.includes(k))){a.stages={};workflow.forEach(s=>a.stages[s.id]=old[s.name]||"To do");}else workflow.forEach(s=>{if(!STATUSES.includes(a.stages[s.id]))a.stages[s.id]="To do";});a.id=a.id||uid();a.name=a.name||"Unnamed Asset";a.note=a.note||"";a.image=a.image||"";return a;}
+function loadAssets(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));return Array.isArray(d)?d.map(migrateAsset):[emptyAsset()];}catch{return[emptyAsset()]}}
+let assets=loadAssets();
+function persist(doRender=true){localStorage.setItem(STORAGE_KEY,JSON.stringify(assets));localStorage.setItem(WORKFLOW_KEY,JSON.stringify(workflow));if(doRender)render();}
+function statusClass(s){return s==="Doing"?"doing":s==="Waiting FB"?"waiting":s==="Done"?"done":"";}
+function pct(a){return workflow.length?Math.round(workflow.filter(s=>a.stages[s.id]==="Done").length/workflow.length*100):0;}
+function bucket(a){if(workflow.length&&workflow.every(s=>a.stages[s.id]==="Done"))return"done";if(workflow.some(s=>a.stages[s.id]==="Waiting FB"))return"waiting";if(workflow.some(s=>a.stages[s.id]==="Doing"))return"doing";return"todo";}
+function render(){const list=document.getElementById("assetList"),q=document.getElementById("search").value.toLowerCase().trim(),f=document.getElementById("filter").value;list.innerHTML="";document.getElementById("workflowSummary").textContent=workflow.map(s=>s.name).join(" → ");assets.filter(a=>a.name.toLowerCase().includes(q)).filter(a=>f==="all"||bucket(a)===f).forEach(a=>list.appendChild(renderAsset(a)));document.getElementById("statTotal").textContent=assets.length;document.getElementById("statDoing").textContent=assets.filter(a=>bucket(a)==="doing").length;document.getElementById("statWaiting").textContent=assets.filter(a=>bucket(a)==="waiting").length;document.getElementById("statDone").textContent=assets.filter(a=>bucket(a)==="done").length;}
+function renderAsset(asset){migrateAsset(asset);const node=document.getElementById("assetTemplate").content.firstElementChild.cloneNode(true),name=node.querySelector(".asset-name"),note=node.querySelector(".asset-note");name.value=asset.name;note.value=asset.note;name.onchange=()=>{asset.name=name.value.trim()||"Unnamed Asset";persist()};note.onchange=()=>{asset.note=note.value;persist()};const img=node.querySelector(".thumb"),ph=node.querySelector(".thumb-placeholder"),btn=node.querySelector(".thumb-btn"),file=node.querySelector(".image-input"),removeImage=node.querySelector(".remove-image");if(asset.image){img.src=asset.image;img.style.display="block";ph.style.display="none";removeImage.hidden=false;img.onclick=e=>{e.stopPropagation();openImage(asset.image)}}btn.onclick=()=>file.click();file.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{asset.image=r.result;persist()};r.readAsDataURL(f);e.target.value=""};removeImage.onclick=()=>{asset.image="";persist()};const row=node.querySelector(".stage-row");row.style.gridTemplateColumns=`repeat(${Math.max(workflow.length,1)},minmax(115px,1fr))`;workflow.forEach(stage=>{const box=document.createElement("div");box.className="stage";const label=document.createElement("label");label.textContent=stage.name;const sel=document.createElement("select");STATUSES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;o.selected=asset.stages[stage.id]===s;sel.appendChild(o)});sel.className=statusClass(asset.stages[stage.id]);sel.onchange=()=>{asset.stages[stage.id]=sel.value;persist()};box.append(label,sel);row.appendChild(box)});const p=pct(asset);node.querySelector(".progress-text").textContent=p+"%";node.querySelector(".progress span").style.width=p+"%";node.querySelector(".remove").onclick=()=>{if(confirm("Delete "+asset.name+"?")){assets=assets.filter(a=>a.id!==asset.id);persist()}};return node;}
+function openImage(src){const m=document.getElementById("imageModal");document.getElementById("modalImg").src=src;m.classList.add("open");m.setAttribute("aria-hidden","false")}
+function closeImage(){const m=document.getElementById("imageModal");m.classList.remove("open");m.setAttribute("aria-hidden","true")}
+document.getElementById("closeModal").onclick=closeImage;document.getElementById("imageModal").onclick=e=>{if(e.target.id==="imageModal")closeImage()};
+const wm=document.getElementById("workflowModal"),wl=document.getElementById("workflowList");let draft=[],dragId=null;
+function openWorkflow(){draft=workflow.map(s=>({...s}));drawWorkflow();wm.classList.add("open");wm.setAttribute("aria-hidden","false")}
+function closeWorkflow(){wm.classList.remove("open");wm.setAttribute("aria-hidden","true")}
+function moveStage(i,d){const t=i+d;if(t<0||t>=draft.length)return;const [x]=draft.splice(i,1);draft.splice(t,0,x);drawWorkflow()}
+function drawWorkflow(){wl.innerHTML="";draft.forEach((stage,i)=>{const item=document.createElement("div");item.className="workflow-item";item.draggable=true;item.dataset.id=stage.id;const h=document.createElement("div");h.className="drag-handle";h.textContent="☰";h.title="Drag to reorder";const input=document.createElement("input");input.className="workflow-name";input.value=stage.name;input.oninput=()=>stage.name=input.value;const tools=document.createElement("div");tools.className="workflow-tools";const up=document.createElement("button");up.textContent="↑";up.disabled=i===0;up.onclick=()=>moveStage(i,-1);const down=document.createElement("button");down.textContent="↓";down.disabled=i===draft.length-1;down.onclick=()=>moveStage(i,1);const del=document.createElement("button");del.textContent="×";del.className="delete-stage";del.onclick=()=>{if(draft.length<=1)return alert("Workflow phải có ít nhất 1 stage.");draft.splice(i,1);drawWorkflow()};tools.append(up,down,del);item.append(h,input,tools);item.ondragstart=e=>{dragId=stage.id;item.classList.add("dragging");e.dataTransfer.setData("text/plain",stage.id)};item.ondragend=()=>{dragId=null;item.classList.remove("dragging")};item.ondragover=e=>e.preventDefault();item.ondrop=e=>{e.preventDefault();const from=draft.findIndex(s=>s.id===(dragId||e.dataTransfer.getData("text/plain"))),to=draft.findIndex(s=>s.id===stage.id);if(from<0||to<0||from===to)return;const[x]=draft.splice(from,1);draft.splice(to,0,x);drawWorkflow()};wl.appendChild(item)})}
+document.getElementById("editWorkflowBtn").onclick=openWorkflow;document.getElementById("closeWorkflow").onclick=closeWorkflow;wm.onclick=e=>{if(e.target===wm)closeWorkflow()};document.getElementById("addStageBtn").onclick=()=>{draft.push({id:uid(),name:"New Stage"});drawWorkflow()};document.getElementById("resetWorkflowBtn").onclick=()=>{if(confirm("Reset workflow về mặc định?")){draft=defaultWorkflow();drawWorkflow()}};document.getElementById("saveWorkflowBtn").onclick=()=>{const cleaned=draft.map(s=>({id:s.id||uid(),name:String(s.name||"").trim()})).filter(s=>s.name);if(!cleaned.length)return alert("Workflow phải có ít nhất 1 stage.");const seen=new Set();for(const s of cleaned){const k=s.name.toLowerCase();if(seen.has(k))return alert("Tên stage không nên trùng nhau: "+s.name);seen.add(k)}const ids=new Set(cleaned.map(s=>s.id));assets.forEach(a=>{cleaned.forEach(s=>{if(!STATUSES.includes(a.stages[s.id]))a.stages[s.id]="To do"});Object.keys(a.stages).forEach(id=>{if(!ids.has(id))delete a.stages[id]})});workflow=cleaned;persist(false);closeWorkflow();render()};
+document.getElementById("addAsset").onclick=()=>{assets.push(emptyAsset());persist()};document.getElementById("search").oninput=render;document.getElementById("filter").onchange=render;
+const projectName=document.getElementById("projectName"),savedProject=localStorage.getItem(PROJECT_KEY);projectName.value=(!savedProject||savedProject==="ThetaPixalator")?"Project Name":savedProject;if(savedProject==="ThetaPixalator")localStorage.setItem(PROJECT_KEY,"Project Name");projectName.onchange=()=>localStorage.setItem(PROJECT_KEY,projectName.value.trim()||"Project Name");
+document.getElementById("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify({version:2,project:projectName.value,workflow,assets},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="3d-production-board.json";a.click();URL.revokeObjectURL(url)};
+document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();document.getElementById("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.project){projectName.value=d.project;localStorage.setItem(PROJECT_KEY,d.project)}if(Array.isArray(d.workflow)&&d.workflow.length)workflow=d.workflow.map(s=>({id:s.id||uid(),name:String(s.name||"Stage")}));if(Array.isArray(d.assets))assets=d.assets.map(migrateAsset);else if(Array.isArray(d))assets=d.map(migrateAsset);persist()}catch{alert("JSON không hợp lệ")}e.target.value=""};
+persist(false);render();
