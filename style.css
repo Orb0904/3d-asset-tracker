@@ -1,16 +1,7 @@
 :root{
-  --bg:#0b0d10;
-  --panel:#12161c;
-  --panel2:#171c24;
-  --line:#26303c;
-  --text:#f5f7fb;
-  --muted:#919baa;
-  --accent:#8ab4ff;
-  --doing:#4f8cff;
-  --waiting:#d9a441;
-  --done:#55b87a;
-  --todo:#6d7580;
-  --danger:#df7777;
+  --bg:#0b0d10; --panel:#12161c; --panel2:#171c24; --line:#26303c;
+  --text:#f5f7fb; --muted:#919baa; --accent:#8ab4ff;
+  --doing:#4f8cff; --waiting:#d9a441; --done:#55b87a; --danger:#df7777;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
@@ -22,57 +13,62 @@ button{cursor:pointer}
   position:sticky;top:0;z-index:10
 }
 .eyebrow,.project-label{font-size:11px;letter-spacing:.18em;color:var(--muted)}
-h1{margin:3px 0 0;font-size:23px}
+h1{margin:3px 0 0;font-size:23px} h2{margin:4px 0 0;font-size:22px}
 .top-actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn{
-  border:1px solid var(--line);background:var(--panel2);color:var(--text);
-  padding:10px 14px;border-radius:10px
-}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#0a1020;font-weight:700}
-.btn.small{padding:7px 10px;font-size:12px}
+.btn.small{padding:7px 10px;font-size:12px}.btn.danger{color:#ffb3b3;border-color:#5a3439}
 .shell{max-width:1500px;margin:0 auto;padding:24px}
-.project-head{
-  display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:20px
+
+.project-switcher{display:flex;gap:10px;align-items:center;margin-bottom:18px;min-width:0}
+.project-tabs{display:flex;gap:8px;overflow-x:auto;flex:1;padding-bottom:2px}
+.project-tab{
+  white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  padding:9px 13px;border-radius:10px
 }
+.project-tab:hover{border-color:var(--accent);color:var(--text)}
+.project-tab.active{background:var(--accent);border-color:var(--accent);color:#09101f;font-weight:750}
+.add-project{white-space:nowrap}
+
+.project-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:20px}
+.project-title-wrap{min-width:0}
+.project-name-row{display:flex;align-items:center;gap:8px}
 .project-name{
   display:block;background:transparent;border:none;color:var(--text);font-size:28px;font-weight:800;
-  padding:5px 0;width:min(620px,85vw)
+  padding:5px 0;width:min(620px,78vw)
 }
 .project-name:focus{outline:none}
+.icon-danger{
+  width:34px;height:34px;border:1px solid #5a3439;background:#171215;color:#f0a0a8;
+  border-radius:9px;font-size:20px;line-height:1
+}
+.icon-danger:hover{border-color:var(--danger)}
 .muted{color:var(--muted);font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(4,100px);gap:8px}
 .stat{background:var(--panel);border:1px solid var(--line);padding:12px;border-radius:12px}
-.stat span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
-.stat strong{font-size:21px}
+.stat span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.stat strong{font-size:21px}
+
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.toolbar input,.toolbar select{
-  background:var(--panel);border:1px solid var(--line);color:var(--text);
-  padding:10px 12px;border-radius:10px
-}
+.toolbar input,.toolbar select{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:10px}
 .toolbar input{min-width:250px;flex:1}
+
 .asset-list{display:grid;gap:12px}
 .asset-card{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden}
-.asset-main{
-  display:grid;grid-template-columns:120px minmax(280px,1fr) 210px;gap:16px;padding:16px
-}
+.asset-main{display:grid;grid-template-columns:120px minmax(280px,1fr) 210px;gap:16px;padding:16px}
 .thumb-wrap{width:120px}
 .thumb-btn{
   width:120px;height:92px;border:1px dashed var(--line);border-radius:10px;overflow:hidden;
   background:#0e1217;color:var(--muted);padding:0;position:relative
 }
-.thumb{width:100%;height:100%;object-fit:cover;display:none}
-.thumb-placeholder{font-size:12px}
+.thumb{width:100%;height:100%;object-fit:cover;display:none}.thumb-placeholder{font-size:12px}
 .remove-image{
   width:100%;margin-top:6px;border:1px solid #58343a;background:#171215;color:#f0a0a8;
   padding:6px 8px;border-radius:8px;font-size:11px
 }
 .remove-image:hover{border-color:var(--danger)}
 .asset-meta{min-width:0}
-.asset-name{
-  width:100%;background:transparent;border:none;color:var(--text);font-size:18px;font-weight:750;
-  padding:3px 0 8px
-}
+.asset-name{width:100%;background:transparent;border:none;color:var(--text);font-size:18px;font-weight:750;padding:3px 0 8px}
 .asset-name:focus{outline:none}
 .asset-note{
   width:100%;min-height:54px;resize:vertical;background:#0e1217;border:1px solid var(--line);
@@ -81,58 +77,29 @@ h1{margin:3px 0 0;font-size:23px}
 .asset-progress{display:flex;flex-direction:column;gap:9px}
 .progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
 .progress{height:9px;background:#0a0d11;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
-.progress span{height:100%;display:block;background:var(--done);width:0}
-.remove{align-self:flex-end;color:#ffb3b3}
-.stage-row{
-  display:grid;grid-template-columns:repeat(7,minmax(115px,1fr));gap:1px;background:var(--line);
-  border-top:1px solid var(--line)
-}
-.stage{
-  background:var(--panel2);padding:10px
-}
-.stage label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
-.stage select{
-  width:100%;background:#10141a;color:var(--text);border:1px solid var(--line);padding:7px;border-radius:8px
-}
-.stage select.doing{border-color:var(--doing)}
-.stage select.waiting{border-color:var(--waiting)}
-.stage select.done{border-color:var(--done)}
-.modal{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;
-  align-items:center;justify-content:center;padding:24px
-}
-.modal.open{display:flex}
-.modal img{max-width:92vw;max-height:88vh;border-radius:12px}
-.modal-close{
-  position:absolute;right:18px;top:14px;border:none;background:transparent;color:white;font-size:34px
-}
-@media(max-width:900px){
-  .project-head{align-items:stretch;flex-direction:column}
-  .stats{grid-template-columns:repeat(4,1fr)}
-  .asset-main{grid-template-columns:100px 1fr}
-  .asset-progress{grid-column:1/-1}
-  .stage-row{overflow-x:auto;display:flex}
-  .stage{min-width:130px}
-}
-@media(max-width:560px){
-  .topbar,.shell{padding:14px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .asset-main{grid-template-columns:1fr}
-  .thumb-wrap,.thumb-btn{width:100%}
-  .thumb-btn{height:150px}
-}
+.progress span{height:100%;display:block;background:var(--done);width:0}.remove{align-self:flex-end;color:#ffb3b3}
+.stage-row{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line);overflow-x:auto}
+.stage{background:var(--panel2);padding:10px;min-width:115px}
+.stage label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px;white-space:nowrap}
+.stage select{width:100%;background:#10141a;color:var(--text);border:1px solid var(--line);padding:7px;border-radius:8px}
+.stage select.doing{border-color:var(--doing)}.stage select.waiting{border-color:var(--waiting)}.stage select.done{border-color:var(--done)}
 
-/* Custom workflow editor */
-.stage-row{grid-template-columns:none}
-.stage{min-width:115px}
-.btn.danger{color:#ffb3b3;border-color:#5a3439}
-.workflow-panel{width:min(680px,96vw);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:50;align-items:center;justify-content:center;padding:24px}
+.modal.open{display:flex}
+.image-modal img{max-width:92vw;max-height:88vh;border-radius:12px}
+.modal-close{position:absolute;right:18px;top:14px;border:none;background:transparent;color:white;font-size:34px}
+.workflow-panel{
+  width:min(680px,96vw);max-height:88vh;overflow:auto;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:18px
+}
 .workflow-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
-.workflow-head h2{margin:4px 0 0;font-size:22px}
 .icon-btn{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:24px}
 .workflow-help{color:var(--muted);font-size:13px;line-height:1.5}
 .workflow-list{display:grid;gap:8px;margin:14px 0}
-.workflow-item{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px;background:#0f1319;border:1px solid var(--line);border-radius:11px}
+.workflow-item{
+  display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;
+  padding:8px;background:#0f1319;border:1px solid var(--line);border-radius:11px
+}
 .workflow-item.dragging{opacity:.45}
 .drag-handle{display:flex;align-items:center;justify-content:center;height:38px;border-radius:8px;color:var(--muted);cursor:grab;user-select:none;font-size:18px}
 .drag-handle:active{cursor:grabbing}
@@ -141,4 +108,18 @@ h1{margin:3px 0 0;font-size:23px}
 .workflow-tools button{min-width:34px;height:34px;padding:0 8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px}
 .workflow-tools .delete-stage{color:#ffaaaa}
 .workflow-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
-@media(max-width:560px){.workflow-item{grid-template-columns:30px 1fr}.workflow-tools{grid-column:2;justify-content:flex-end}}
+
+@media(max-width:900px){
+  .project-head{align-items:stretch;flex-direction:column}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .asset-main{grid-template-columns:100px 1fr}.asset-progress{grid-column:1/-1}
+  .stage-row{display:flex}.stage{min-width:130px}
+}
+@media(max-width:560px){
+  .topbar,.shell{padding:14px}.topbar{align-items:flex-start;flex-direction:column}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .asset-main{grid-template-columns:1fr}
+  .thumb-wrap,.thumb-btn{width:100%}.thumb-btn{height:150px}
+  .workflow-item{grid-template-columns:30px 1fr}.workflow-tools{grid-column:2;justify-content:flex-end}
+  .project-switcher{align-items:stretch;flex-direction:column}.add-project{align-self:flex-start}
+}

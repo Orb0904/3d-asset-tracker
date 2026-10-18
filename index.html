@@ -20,10 +20,18 @@
   </header>
 
   <main class="shell">
+    <section class="project-switcher">
+      <div id="projectTabs" class="project-tabs"></div>
+      <button id="addProjectBtn" class="btn add-project">+ Add Project</button>
+    </section>
+
     <section class="project-head">
-      <div>
+      <div class="project-title-wrap">
         <div class="project-label">PROJECT</div>
-        <input id="projectName" class="project-name" value="Project Name" />
+        <div class="project-name-row">
+          <input id="projectName" class="project-name" value="Project Name" />
+          <button id="deleteProjectBtn" class="icon-danger" type="button" title="Delete Project">×</button>
+        </div>
         <div id="workflowSummary" class="muted"></div>
       </div>
 
@@ -50,14 +58,19 @@
     <section id="assetList" class="asset-list"></section>
   </main>
 
-
   <div id="workflowModal" class="modal workflow-modal" aria-hidden="true">
     <div class="workflow-panel" role="dialog" aria-modal="true" aria-labelledby="workflowTitle">
       <div class="workflow-head">
-        <div><div class="eyebrow">CUSTOM PIPELINE</div><h2 id="workflowTitle">Edit Workflow</h2></div>
+        <div>
+          <div class="eyebrow">CUSTOM PIPELINE</div>
+          <h2 id="workflowTitle">Edit Workflow</h2>
+        </div>
         <button id="closeWorkflow" class="icon-btn" type="button" aria-label="Đóng">×</button>
       </div>
-      <p class="workflow-help">Kéo từng bước để đổi vị trí, hoặc dùng nút ↑ ↓. Đổi tên trực tiếp trong ô.</p>
+      <p class="workflow-help">
+        Kéo từng bước để đổi vị trí, hoặc dùng nút ↑ ↓. Đổi tên trực tiếp trong ô.
+        Workflow này chỉ áp dụng cho project hiện tại.
+      </p>
       <div id="workflowList" class="workflow-list"></div>
       <div class="workflow-actions">
         <button id="addStageBtn" class="btn" type="button">+ Add Stage</button>
@@ -98,7 +111,6 @@
           <button class="btn small remove">Delete</button>
         </div>
       </div>
-
       <div class="stage-row"></div>
     </article>
   </template>
